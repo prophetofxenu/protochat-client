@@ -56,19 +56,23 @@ ProtochatSocket::ProtochatSocket(string &addr, int port) :
     addr(addr), port(port) {}
 
 
+bool ProtochatSocket::connected() {
+    return sockfd > -1;
+}
+
+
 bool ProtochatSocket::connect() {
     goto connect_start;
 
 connect_fail:
     std::cerr << "Error during handshake" << std::endl;
-    if (sockfd > -1)
+    if (sockfd > -1) {
         close(sockfd);
+        sockfd = -1;
+    }
     return false;
 
 connect_start:
-
-    string tmp_s;
-    HexEncoder tmp(new CryptoPP::StringSink(tmp_s));
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     struct sockaddr_in serv_addr;
@@ -77,6 +81,8 @@ connect_start:
     inet_pton(AF_INET, addr.c_str(), &serv_addr.sin_addr);
     if (::connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
         std::cerr << "Unable to connect" << std::endl;
+        close(sockfd);
+        sockfd = -1;
         return false;
     }
 
@@ -110,13 +116,14 @@ connect_start:
         pub_string.resize(encoder_size);
         pub_key_encoder.Get((byte *) &pub_string[0], pub_string.size());
         int key_size = pub_string.size();
-        if (static_cast<ulong>(send(sockfd, &key_size, sizeof(int), 0)) < sizeof(int))
+        if (static_cast<ulong>(::send(sockfd, &key_size, sizeof(int), 0)) < sizeof(int))
             goto connect_fail;
-        if (send(sockfd, pub_string.c_str(), key_size, 0) < key_size)
+        if (::send(sockfd, pub_string.c_str(), key_size, 0) < key_size)
             goto connect_fail;
     } else {
         std::cerr << "Unable to complete handshake: error during ECDH keygen" << std::endl;
         close(sockfd);
+        sockfd = -1;
         return false;
     }
 
@@ -135,12 +142,8 @@ connect_start:
                    HKDF_SALT, HKDF_SALT_LEN, HKDF_INFO, HKDF_INFO_LEN);
 
     // setup stream cipher
-    byte iv[IV_LEN];
     if (read(sockfd, iv, IV_LEN) < IV_LEN)
         goto connect_fail;
-    tmp.Put(iv, IV_LEN);
-    tmp.MessageEnd();
-    std::cout << tmp_s << std::endl;
 
     enc.SetKeyWithIV(derived_key, KEY_LEN, iv, IV_LEN);
     dec.SetKeyWithIV(derived_key, KEY_LEN, iv, IV_LEN);
@@ -151,9 +154,9 @@ connect_start:
     enc.EncryptAndAuthenticate(verify_ct, mac, MAC_LEN, iv, IV_LEN,
                                CIP_HEADER, CIP_HEADER_LEN,
                                (const byte *) VERIFY_PHRASE, VERIFY_PHRASE_LEN);
-    if (send(sockfd, verify_ct, VERIFY_PHRASE_LEN, 0) < VERIFY_PHRASE_LEN)
+    if (::send(sockfd, verify_ct, VERIFY_PHRASE_LEN, 0) < VERIFY_PHRASE_LEN)
         goto connect_fail;
-    if (send(sockfd, mac, MAC_LEN, 0) < MAC_LEN)
+    if (::send(sockfd, mac, MAC_LEN, 0) < MAC_LEN)
         goto connect_fail;
 
     // receive confirmation phrase
@@ -177,3 +180,50 @@ connect_start:
 
 }
 
+
+void ProtochatSocket::disconnect() {
+    if (sockfd == -1)
+        return;
+    close(sockfd);
+    sockfd = -1;
+}
+
+
+bool ProtochatSocket::send(const byte *data, size_t len) {
+    if (sockfd == -1)
+        return false;
+
+    byte ct[len];
+    byte mac[MAC_LEN];
+    enc.EncryptAndAuthenticate(ct, mac, MAC_LEN, iv, IV_LEN,
+                               CIP_HEADER, CIP_HEADER_LEN,
+                               data, len);
+    size_t sent = 0;
+    do
+        sent += ::send(sockfd, ct + sent, len - sent, 0);
+    while (sent < len);
+    sent = 0;
+    do
+        sent += ::send(sockfd, mac + sent, MAC_LEN - sent, 0);
+    while (sent < len);
+    return true;
+}
+
+
+bool ProtochatSocket::receive(byte *buffer, size_t len) {
+    if (sockfd == -1)
+        return false;
+
+    byte ct[len];
+    byte mac[MAC_LEN];
+    size_t received = 0;
+    do
+        received += read(sockfd, ct, len - received);
+    while (received < len);
+    received = 0;
+    do
+        received += read(sockfd, mac, MAC_LEN - received);
+    while (received < MAC_LEN);
+    return dec.DecryptAndVerify(buffer, mac, MAC_LEN, iv, IV_LEN,
+                                CIP_HEADER, CIP_HEADER_LEN, ct, len);
+}

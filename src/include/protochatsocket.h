@@ -14,8 +14,7 @@ using CryptoPP::OID;
 #include <cryptopp/asn.h>
 #include <cryptopp/chachapoly.h>
 
-class ProtochatSocket : QObject {
-    Q_OBJECT
+class ProtochatSocket {
 
 private:
 
@@ -39,12 +38,17 @@ private:
     static constexpr char CONFIRM_PHRASE[] = "PROTOCHAT CONFIRM";
     static constexpr int CONFIRM_PHRASE_LEN = sizeof(CONFIRM_PHRASE) - 1;
 
+    CryptoPP::byte iv[IV_LEN];
     CryptoPP::ChaCha20Poly1305::Encryption enc;
     CryptoPP::ChaCha20Poly1305::Decryption dec;
 
 public:
     ProtochatSocket(string &addr, int port);
+    bool connected();
     bool connect();
+    void disconnect();
+    bool send(const CryptoPP::byte *data, size_t len);
+    bool receive(CryptoPP::byte *buffer, size_t len);
 };
 
 #endif // PROTOCHATSOCKET_H
