@@ -44,6 +44,7 @@ private:
 
 public:
     ProtochatSocket(string &addr, int port);
+    ~ProtochatSocket();
     bool connected();
     bool connect();
     void disconnect();

@@ -56,6 +56,11 @@ ProtochatSocket::ProtochatSocket(string &addr, int port) :
     addr(addr), port(port) {}
 
 
+ProtochatSocket::~ProtochatSocket() {
+    disconnect();
+}
+
+
 bool ProtochatSocket::connected() {
     return sockfd > -1;
 }
