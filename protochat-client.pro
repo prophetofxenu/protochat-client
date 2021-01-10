@@ -2,7 +2,7 @@ QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++11
+CONFIG += c++17
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -11,11 +11,15 @@ CONFIG += c++11
 SOURCES += \
     src/main.cpp \
     src/protochatmainwindow.cpp \
+    src/protochatregistermessage.cpp \
     src/protochatsocket.cpp
 
 HEADERS += \
     src/include/protochatmainwindow.h \
-    src/include/protochatsocket.h
+    src/include/protochatregistermessage.h \
+    src/include/protochatsocket.h \
+    src/include/protochatsockmessage.h \
+    src/protochatregistermessage.h
 
 FORMS += \
     src/ui/protochatmainwindow.ui
