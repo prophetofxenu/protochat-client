@@ -22,9 +22,9 @@ public:
     ProtochatRegisterMessage();
     ~ProtochatRegisterMessage();
 
-    virtual bool complete() = 0;
-    virtual size_t messageSize() = 0;
-    virtual std::byte* serialize() = 0;
+    virtual bool complete();
+    virtual size_t messageSize();
+    virtual std::byte* serialize();
 
     std::string getUsername() const;
     void setUsername(const std::string &value);

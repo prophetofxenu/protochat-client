@@ -84,14 +84,14 @@ size_t ProtochatRegisterMessage::messageSize() {
     if (!complete())
         return 0;
     size_t size = 0;
-    size += sizeof(int) + username.size() - 1;
-    size += sizeof(int) + password.size() - 1;
+    size += sizeof(int) + username.size();
+    size += sizeof(int) + password.size();
     if (bio.size() > 0)
-        size += sizeof(int) + bio.size() - 1;
+        size += sizeof(int) + bio.size();
     else
         size += sizeof(int);
     if (profilePicFilename.size() > 0) {
-        size += sizeof(int) + profilePicFilename.size() - 1;
+        size += sizeof(int) + profilePicFilename.size();
         size += sizeof(int) + profilePic.size();
         size += sizeof(int) + profilePicCaption.size();
     } else
@@ -128,6 +128,9 @@ std::byte* ProtochatRegisterMessage::serialize() {
     if (profilePicFilename.size() > 0) {
         std::memcpy(message + pos, profilePicFilename.c_str(), tmp);
         pos += tmp;
+        tmp = profilePic.size();
+        std::memcpy(message + pos, &tmp, sizeof(int));
+        pos += sizeof(int);
         for (int i = pos; i - pos < profilePic.size(); i++)
             message[i] = profilePic.at(i - pos);
         pos += profilePic.size();

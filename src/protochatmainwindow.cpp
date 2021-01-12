@@ -1,12 +1,15 @@
 #include "src/include/protochatmainwindow.h"
-#include "ui_protochatmainwindow.h"
+
 #include "src/include/protochatsocket.h"
+#include "src/include/protochatregistermessage.h"
+#include "ui_protochatmainwindow.h"
 
 #include <iostream>
 #include <QTcpSocket>
 #include <QTcpServer>
 #include <chrono>
 #include <thread>
+#include <vector>
 #include <cstring>
 
 #include <cryptopp/secblock.h>
@@ -23,16 +26,23 @@ ProtochatMainWindow::ProtochatMainWindow(QWidget *parent)
     if (sock.connect())
         std::cout << "Connected" << std::endl;
 
-    char msg[] = "peepo pog";
-    int len = sizeof(msg) - 1;
-    sock.send((const byte *) &len, sizeof(int));
-    sock.send((const byte *) msg, len);
 
-    sock.receive((byte *) &len, sizeof(int));
-    char recv_msg[len + 1];
-    recv_msg[len] = '\0';
-    sock.receive((byte *) recv_msg, len);
-    std::cout << recv_msg << std::endl;
+    ProtochatRegisterMessage message;
+    message.setUsername("Xenu's Prophet");
+    message.setPassword("password");
+    message.setBio("im gay");
+    message.setProfilePicFilename("pfp.png");
+    std::vector<std::byte> profilePic;
+    profilePic.push_back(static_cast<std::byte>('a'));
+    profilePic.push_back(static_cast<std::byte>('b'));
+    profilePic.push_back(static_cast<std::byte>('c'));
+    message.setProfilePic(profilePic);
+    message.setProfilePicCaption("Me when I was less gay");
+
+    std::byte *msgSrl = message.serialize();
+    int tmp = message.messageSize();
+    sock.send((byte *) &tmp, sizeof(int));
+    sock.send((byte *) msgSrl, tmp);
 
     sock.disconnect();
 }
