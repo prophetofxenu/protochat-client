@@ -8,6 +8,8 @@
 #include <QTcpSocket>
 #include <QTcpServer>
 #include <chrono>
+#include <string>
+using std::string;
 #include <thread>
 #include <vector>
 #include <cstring>
@@ -22,12 +24,12 @@ ProtochatMainWindow::ProtochatMainWindow(QWidget *parent)
     ui->setupUi(this);
 
     string addr = "127.0.0.1";
-    ProtochatSocket sock(addr, 20000);
+    Protochat::Socket sock(addr, 20000);
     if (sock.connect())
         std::cout << "Connected" << std::endl;
 
 
-    ProtochatRegisterMessage message;
+    Protochat::Messages::Register message;
     message.setUsername("Xenu's Prophet");
     message.setPassword("password");
     message.setBio("im gay");

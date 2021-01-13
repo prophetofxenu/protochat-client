@@ -4,13 +4,17 @@
 #include <cstddef>
 #include <cstdlib>
 
-class ProtochatSockMessage {
+namespace Protochat::Messages {
 
-public:
-    virtual bool complete() = 0;
-    virtual size_t messageSize() = 0;
-    virtual std::byte* serialize() = 0;
+    class SockMessage {
 
-};
+    public:
+        virtual bool complete() = 0;
+        virtual size_t messageSize() = 0;
+        virtual std::byte* serialize() = 0;
+
+    };
+
+}
 
 #endif // PROTOCHATSOCKMESSAGE_H

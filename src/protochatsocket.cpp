@@ -44,29 +44,29 @@ using CryptoPP::HKDF;
 using CryptoPP::SHA256;
 
 
-const OID ProtochatSocket::CURVE = secp384r1();
-constexpr byte ProtochatSocket::HKDF_SALT[];
-constexpr byte ProtochatSocket::HKDF_INFO[];
-constexpr byte ProtochatSocket::CIP_HEADER[];
-constexpr char ProtochatSocket::VERIFY_PHRASE[];
-constexpr char ProtochatSocket::CONFIRM_PHRASE[];
+const OID Protochat::Socket::CURVE = secp384r1();
+constexpr byte Protochat::Socket::HKDF_SALT[];
+constexpr byte Protochat::Socket::HKDF_INFO[];
+constexpr byte Protochat::Socket::CIP_HEADER[];
+constexpr char Protochat::Socket::VERIFY_PHRASE[];
+constexpr char Protochat::Socket::CONFIRM_PHRASE[];
 
 
-ProtochatSocket::ProtochatSocket(string &addr, int port) :
+Protochat::Socket::Socket(string &addr, int port) :
     addr(addr), port(port) {}
 
 
-ProtochatSocket::~ProtochatSocket() {
+Protochat::Socket::~Socket() {
     disconnect();
 }
 
 
-bool ProtochatSocket::connected() {
+bool Protochat::Socket::connected() {
     return sockfd > -1;
 }
 
 
-bool ProtochatSocket::connect() {
+bool Protochat::Socket::connect() {
     goto connect_start;
 
 connect_fail:
@@ -186,7 +186,7 @@ connect_start:
 }
 
 
-void ProtochatSocket::disconnect() {
+void Protochat::Socket::disconnect() {
     if (sockfd == -1)
         return;
     close(sockfd);
@@ -194,7 +194,7 @@ void ProtochatSocket::disconnect() {
 }
 
 
-bool ProtochatSocket::send(const byte *data, size_t len) {
+bool Protochat::Socket::send(const byte *data, size_t len) {
     if (sockfd == -1)
         return false;
 
@@ -215,7 +215,7 @@ bool ProtochatSocket::send(const byte *data, size_t len) {
 }
 
 
-bool ProtochatSocket::receive(byte *buffer, size_t len) {
+bool Protochat::Socket::receive(byte *buffer, size_t len) {
     if (sockfd == -1)
         return false;
 

@@ -3,73 +3,73 @@
 #include <cstring>
 
 
-ProtochatRegisterMessage::ProtochatRegisterMessage() {}
+Protochat::Messages::Register::Register() {}
 
 
-ProtochatRegisterMessage::~ProtochatRegisterMessage() {}
+Protochat::Messages::Register::~Register() {}
 
 
-std::string ProtochatRegisterMessage::getUsername() const {
+std::string Protochat::Messages::Register::getUsername() const {
     return username;
 }
 
 
-void ProtochatRegisterMessage::setUsername(const std::string &value) {
+void Protochat::Messages::Register::setUsername(const std::string &value) {
     username = value;
 }
 
 
-std::string ProtochatRegisterMessage::getPassword() const {
+std::string Protochat::Messages::Register::getPassword() const {
     return password;
 }
 
 
-void ProtochatRegisterMessage::setPassword(const std::string &value) {
+void Protochat::Messages::Register::setPassword(const std::string &value) {
     password = value;
 }
 
 
-std::string ProtochatRegisterMessage::getBio() const {
+std::string Protochat::Messages::Register::getBio() const {
     return bio;
 }
 
 
-void ProtochatRegisterMessage::setBio(const std::string &value) {
+void Protochat::Messages::Register::setBio(const std::string &value) {
     bio = value;
 }
 
 
-std::string ProtochatRegisterMessage::getProfilePicFilename() const {
+std::string Protochat::Messages::Register::getProfilePicFilename() const {
     return profilePicFilename;
 }
 
 
-void ProtochatRegisterMessage::setProfilePicFilename(const std::string &value) {
+void Protochat::Messages::Register::setProfilePicFilename(const std::string &value) {
     profilePicFilename = value;
 }
 
 
-std::vector<std::byte> ProtochatRegisterMessage::getProfilePic() const {
+std::vector<std::byte> Protochat::Messages::Register::getProfilePic() const {
     return profilePic;
 }
 
 
-void ProtochatRegisterMessage::setProfilePic(const std::vector<std::byte> &value) {
+void Protochat::Messages::Register::setProfilePic(const std::vector<std::byte> &value) {
     profilePic = value;
 }
 
 
-std::string ProtochatRegisterMessage::getProfilePicCaption() const {
+std::string Protochat::Messages::Register::getProfilePicCaption() const {
     return profilePicCaption;
 }
 
 
-void ProtochatRegisterMessage::setProfilePicCaption(const std::string &value) {
+void Protochat::Messages::Register::setProfilePicCaption(const std::string &value) {
     profilePicCaption = value;
 }
 
 
-bool ProtochatRegisterMessage::complete() {
+bool Protochat::Messages::Register::complete() {
     if (username.size() == 0)
         return false;
     if (password.size() == 0)
@@ -80,7 +80,7 @@ bool ProtochatRegisterMessage::complete() {
 }
 
 
-size_t ProtochatRegisterMessage::messageSize() {
+size_t Protochat::Messages::Register::messageSize() {
     if (!complete())
         return 0;
     size_t size = 0;
@@ -100,7 +100,7 @@ size_t ProtochatRegisterMessage::messageSize() {
 }
 
 
-std::byte* ProtochatRegisterMessage::serialize() {
+std::byte* Protochat::Messages::Register::serialize() {
     if (!complete())
         return nullptr;
     std::byte *message = new std::byte[messageSize()];
