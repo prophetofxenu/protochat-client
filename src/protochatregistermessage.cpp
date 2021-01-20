@@ -84,18 +84,18 @@ size_t Protochat::Messages::Register::messageSize() {
     if (!complete())
         return 0;
     size_t size = 0;
-    size += sizeof(int) + username.size();
-    size += sizeof(int) + password.size();
+    size += sizeof(u_char) + username.size();
+    size += sizeof(u_char) + password.size();
     if (bio.size() > 0)
-        size += sizeof(int) + bio.size();
+        size += sizeof(u_short) + bio.size();
     else
-        size += sizeof(int);
+        size += sizeof(u_short);
     if (profilePicFilename.size() > 0) {
-        size += sizeof(int) + profilePicFilename.size();
-        size += sizeof(int) + profilePic.size();
-        size += sizeof(int) + profilePicCaption.size();
+        size += sizeof(u_short) + profilePicFilename.size();
+        size += sizeof(uint) + profilePic.size();
+        size += sizeof(u_short) + profilePicCaption.size();
     } else
-        size += sizeof(int);
+        size += sizeof(u_short);
     return size;
 }
 
@@ -105,40 +105,40 @@ std::byte* Protochat::Messages::Register::serialize() {
         return nullptr;
     std::byte *message = new std::byte[messageSize()];
     size_t pos = 0;
-    int tmp = username.size();
-    std::memcpy(message + pos, &tmp, sizeof(int));
-    pos += sizeof(int);
-    std::memcpy(message + pos, username.c_str(), tmp);
-    pos += tmp;
-    tmp = password.size();
-    std::memcpy(message + pos, &tmp, sizeof(int));
-    pos += sizeof(int);
-    std::memcpy(message + pos, password.c_str(), tmp);
-    pos += tmp;
-    tmp = bio.size();
-    std::memcpy(message + pos, &tmp, sizeof(int));
-    pos += sizeof(int);
+    u_char ucTmp = username.size();
+    std::memcpy(message + pos, &ucTmp, sizeof(u_char));
+    pos += sizeof(u_char);
+    std::memcpy(message + pos, username.c_str(), ucTmp);
+    pos += ucTmp;
+    ucTmp = password.size();
+    std::memcpy(message + pos, &ucTmp, sizeof(u_char));
+    pos += sizeof(u_char);
+    std::memcpy(message + pos, password.c_str(), ucTmp);
+    pos += ucTmp;
+    u_short usTmp = bio.size();
+    std::memcpy(message + pos, &usTmp, sizeof(u_short));
+    pos += sizeof(u_short);
     if (bio.size() > 0) {
-        std::memcpy(message + pos, bio.c_str(), tmp);
-        pos += tmp;
+        std::memcpy(message + pos, bio.c_str(), usTmp);
+        pos += usTmp;
     }
-    tmp = profilePicFilename.size();
-    std::memcpy(message + pos, &tmp, sizeof(int));
-    pos += sizeof(int);
+    usTmp = profilePicFilename.size();
+    std::memcpy(message + pos, &usTmp, sizeof(u_short));
+    pos += sizeof(u_short);
     if (profilePicFilename.size() > 0) {
-        std::memcpy(message + pos, profilePicFilename.c_str(), tmp);
-        pos += tmp;
-        tmp = profilePic.size();
-        std::memcpy(message + pos, &tmp, sizeof(int));
-        pos += sizeof(int);
+        std::memcpy(message + pos, profilePicFilename.c_str(), usTmp);
+        pos += usTmp;
+        uint uiTmp = profilePic.size();
+        std::memcpy(message + pos, &uiTmp, sizeof(uint));
+        pos += sizeof(uint);
         for (int i = pos; i - pos < profilePic.size(); i++)
             message[i] = profilePic.at(i - pos);
         pos += profilePic.size();
-        tmp = profilePicCaption.size();
-        std::memcpy(message + pos, &tmp, sizeof(int));
+        usTmp = profilePicCaption.size();
+        std::memcpy(message + pos, &usTmp, sizeof(u_short));
         if (profilePicCaption.size() > 0) {
-            pos += sizeof(int);
-            std::memcpy(message + pos, profilePicCaption.c_str(), tmp);
+            pos += sizeof(u_short);
+            std::memcpy(message + pos, profilePicCaption.c_str(), usTmp);
         }
     }
     return message;
